@@ -156,11 +156,11 @@ namespace Project1
             // Generate transaction ID
             string transactionId = Guid.NewGuid().ToString();
             // Get current date and time
-            string date = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+            string date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
             StringBuilder orders = new StringBuilder();
-            orders.AppendLine($"Transaction ID :{transactionId}");
-            orders.AppendLine($"Date :{date}");
+            orders.AppendLine($"Transaction ID: {transactionId}");
+            orders.AppendLine($"Date: {date}");
             orders.AppendLine("Meal\t\t\tSize\t\tPrice\tStock");
             orders.AppendLine("--------------------------------------------------------------------");
             foreach (var item in NewOrder)

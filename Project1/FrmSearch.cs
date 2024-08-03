@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Project1
@@ -20,18 +13,25 @@ namespace Project1
 
         private void BtnSearch_Click(object sender, EventArgs e)
         {
-
+            if (!string.IsNullOrEmpty(TxtTransactionId.Text))
+            {
+                SearchMealDetailsById(TxtTransactionId.Text);
+            }
+            else
+            {
+                SearchMealDetailsByDate(DtTransDate.Text);
+            }
         }
 
-        private void SearchMealDetails(string criteria, string value)
+        private void SearchMealDetailsById(string transactionId)
         {
             // Define the file path
-            string filePath = "meal_transactions.txt";
+            string filePath = @"D:\DaCheekyCow.txt";
 
             // Check if the file exists
             if (!File.Exists(filePath))
             {
-                Console.WriteLine("The file does not exist.");
+                MessageBox.Show("The file does not exist.");
                 return;
             }
 
@@ -44,31 +44,77 @@ namespace Project1
             // Loop through lines to find matching entries
             for (int i = 0; i < lines.Length; i++)
             {
-                if (criteria.Equals("ID", StringComparison.OrdinalIgnoreCase) && lines[i].StartsWith($"Transaction ID: {value}"))
+                if (lines[i].StartsWith($"Transaction ID: {transactionId}"))
                 {
                     // Print the entry
                     PrintEntry(lines, i);
                     found = true;
-                    break;
-                }
-                else if (criteria.Equals("Date", StringComparison.OrdinalIgnoreCase) && lines[i].StartsWith($"Date: {value}"))
-                {
-                    // Print the entry
-                    PrintEntry(lines, i);
-                    found = true;
-                    break;
+                    break; // Exit after finding the first match
                 }
             }
 
             if (!found)
             {
-                Console.WriteLine("No matching entry found.");
+                MessageBox.Show("No matching entry found.");
+            }
+        }
+
+        public void SearchMealDetailsByDate(string dateInput)
+        {
+            // Define the file path
+            string filePath = @"D:\DaCheekyCow.txt";
+
+            // Check if the file exists
+            if (!File.Exists(filePath))
+            {
+                MessageBox.Show("The file does not exist.");
+                return;
+            }
+
+            // Read all lines from the file
+            string[] lines = File.ReadAllLines(filePath);
+
+            // Initialize variables to hold search results
+            bool found = false;
+
+            // Convert input date to DateTime object for comparison
+            DateTime searchDate;
+            if (!DateTime.TryParse(dateInput, out searchDate))
+            {
+                MessageBox.Show("Invalid date format.");
+                return;
+            }
+
+            // Loop through lines to find matching entries
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].StartsWith("Date: "))
+                {
+                    // Extract the date part from the line
+                    string dateString = lines[i].Substring(6); // Skip "Date: "
+                    DateTime entryDate;
+                    if (DateTime.TryParse(dateString, out entryDate))
+                    {
+                        // Compare only the date parts
+                        if (entryDate.Date == searchDate.Date)
+                        {
+                            // Print the entry
+                            PrintEntry(lines, i);
+                            found = true;
+                        }
+                    }
+                }
+            }
+
+            if (!found)
+            {
+                MessageBox.Show("No matching entry found.");
             }
         }
 
         private void PrintEntry(string[] lines, int startIndex)
         {
-            Console.WriteLine("Meal Details:");
+            MessageBox.Show("Meal Details:");
             // Print the relevant entry starting from the index
             for (int i = startIndex; i < lines.Length; i++)
             {
@@ -77,9 +123,8 @@ namespace Project1
                     // Break on empty line (end of the entry)
                     break;
                 }
-                Console.WriteLine(lines[i]);
-            }
-            Console.WriteLine();
+                MessageBox.Show(lines[i]);
+            }           
         }
     }
 }

@@ -63,7 +63,7 @@ namespace Project1
         static string GenerateUniqueId()
         {
             counter++;
-            return $"{DateTime.Now:yyyyMMddHHmmss}-{counter:D4}";
+            return $"{DateTime.Now:yyMMddHHmmss}-{counter:D4}";
         }
 
         //Search Meals beased on Meals and Serving Size
@@ -154,18 +154,19 @@ namespace Project1
         private void BtnCompleteOrder_Click(object sender, EventArgs e)
         {
             // Generate transaction ID
-            string transactionId = Guid.NewGuid().ToString();
+            string transactionId = GenerateUniqueId();
+            //string transactionId = Guid.NewGuid().ToString();
             // Get current date and time
             string date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
             StringBuilder orders = new StringBuilder();
-            orders.AppendLine($"Transaction ID: {transactionId}");
-            orders.AppendLine($"Date: {date}");
-            orders.AppendLine("Meal\t\t\tSize\t\tPrice\tStock");
-            orders.AppendLine("--------------------------------------------------------------------");
+           // orders.AppendLine($"Transaction ID: {transactionId}");
+            //orders.AppendLine($"Date: {date}");
+            orders.AppendLine("Transaction Id\t\tDate:\t\tMeal\t\t\tSize\t\tPrice\tStock");
+            orders.AppendLine("---------------------------------------------------------------------------------------");
             foreach (var item in NewOrder)
             {
-                orders.AppendLine($"{item.MealName,-20}\t{item.ServingSize,-15}\t{item.Price,-5}\t{item.Stock}");
+                orders.AppendLine($"{transactionId,-20}\t{date,-20}\t{item.MealName,-20}\t{item.ServingSize,-15}\t{item.Price,-5}\t{item.Stock}");
             }
             MessageBox.Show(orders.ToString());
             orders.AppendLine(Environment.NewLine);

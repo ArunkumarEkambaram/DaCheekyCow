@@ -44,7 +44,7 @@ namespace Project1
             // Loop through lines to find matching entries
             for (int i = 0; i < lines.Length; i++)
             {
-                if (lines[i].StartsWith($"Transaction ID: {transactionId}"))
+                if (lines[i].StartsWith($"Transaction ID:{transactionId}"))
                 {
                     // Print the entry
                     PrintEntry(lines, i);
@@ -88,7 +88,7 @@ namespace Project1
             // Loop through lines to find matching entries
             for (int i = 0; i < lines.Length; i++)
             {
-                if (lines[i].StartsWith("Date: "))
+                if (lines[i].StartsWith("Date:"))
                 {
                     // Extract the date part from the line
                     string dateString = lines[i].Substring(6); // Skip "Date: "

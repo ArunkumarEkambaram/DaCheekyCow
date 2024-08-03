@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -84,6 +86,7 @@ namespace Project1
             }
         }
 
+        //Update Stock after each order completed
         public void UpdateStock(string[] meals, string[] sizes, string[,] mealDetails, string mealName, string sizeName, string newStock)
         {
             int mealIndex = Array.IndexOf(meals, mealName);
@@ -97,7 +100,6 @@ namespace Project1
             {
                 var details = mealDetails[mealIndex, sizeIndex].Split(':');
                 mealDetails[mealIndex, sizeIndex] = $"{details[0]}:{newStock}";
-                //Console.WriteLine("Stock updated successfully.");
             }
         }
 
@@ -114,7 +116,6 @@ namespace Project1
                 string mealName = DdlMeals.SelectedItem.ToString();
                 string sizeName = DdlSize.SelectedItem.ToString();
                 SearchMeal(meals, sizes, mealDetails, mealName, sizeName);
-                // TxtStock.Text = availableStock.ToString();
             }
         }
 
@@ -125,52 +126,62 @@ namespace Project1
                 string mealName = DdlMeals.SelectedItem.ToString();
                 string sizeName = DdlSize.SelectedItem.ToString();
                 SearchMeal(meals, sizes, mealDetails, mealName, sizeName);
-                // TxtStock.Text = availableStock.ToString();
             }
         }
 
         //Add Order
         private void BtnAdd_Click(object sender, EventArgs e)
         {
-            string mealName = DdlMeals.SelectedItem.ToString();
-            string sizeName = DdlSize.SelectedItem.ToString();
-
-            int.TryParse(TxtStock.Text, out int enteredStock);
-            if (enteredStock > availableStock)
+            if (DdlMeals.SelectedIndex > 0 && DdlSize.SelectedIndex > 0)
             {
-                if (MessageBox.Show($"Insufficient Stock available, Current available stocks are {availableStock} ") == DialogResult.OK)
+                string mealName = DdlMeals.SelectedItem.ToString();
+                string sizeName = DdlSize.SelectedItem.ToString();
+
+                int.TryParse(TxtStock.Text, out int enteredStock);
+                if (enteredStock > availableStock)
                 {
-                    TxtStock.Text = availableStock.ToString();
+                    if (MessageBox.Show($"Insufficient Stock available, Current available stocks are {availableStock} ") == DialogResult.OK)
+                    {
+                        TxtStock.Text = availableStock.ToString();
+                    }
                 }
+                else
+                {
+                    string newStock = (availableStock - enteredStock).ToString();
+                    UpdateStock(meals, sizes, mealDetails, mealName, sizeName, newStock);
+                }
+                NewOrder.Add(new MealDetails { MealName = mealName, ServingSize = sizeName, Price = float.Parse(TxtPrice.Text), Stock = int.Parse(TxtStock.Text) });
             }
             else
             {
-                string newStock = (availableStock - enteredStock).ToString();
-                UpdateStock(meals, sizes, mealDetails, mealName, sizeName, newStock);
+                MessageBox.Show("Please select Meal Name and Serving Size, before placing order");
             }
-            NewOrder.Add(new MealDetails { MealName = mealName, ServingSize = sizeName, Price = float.Parse(TxtPrice.Text), Stock = int.Parse(TxtStock.Text) });
         }
 
         private void BtnCompleteOrder_Click(object sender, EventArgs e)
         {
             // Generate transaction ID
             string transactionId = GenerateUniqueId();
-            //string transactionId = Guid.NewGuid().ToString();
+
             // Get current date and time
             string date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
             StringBuilder orders = new StringBuilder();
-           // orders.AppendLine($"Transaction ID: {transactionId}");
-            //orders.AppendLine($"Date: {date}");
-            orders.AppendLine("Transaction Id\t\tDate:\t\tMeal\t\t\tSize\t\tPrice\tStock");
-            orders.AppendLine("---------------------------------------------------------------------------------------");
             foreach (var item in NewOrder)
             {
-                orders.AppendLine($"{transactionId,-20}\t{date,-20}\t{item.MealName,-20}\t{item.ServingSize,-15}\t{item.Price,-5}\t{item.Stock}");
+                orders.AppendLine($"Transaction ID: {transactionId}\n" +
+                      $"Date: {date}\n" +
+                      $"Meal: {item.MealName}\n" +
+                      $"Size: {item.ServingSize}\n" +
+                      $"Price: {item.Price:C}\n" +
+                      $"Stock: {item.Stock}\n" +
+                      "----------------------------------------");
             }
+
             MessageBox.Show(orders.ToString());
-            orders.AppendLine(Environment.NewLine);
-            File.AppendAllText(@"D:\DaCheekyCow.txt", orders.ToString());
+            File.AppendAllText(@"D:\DaCheekyCow.txt", orders.ToString() + Environment.NewLine);
+
+            //Clear all after each order completed
             Clear();
             NewOrder.Clear();
         }
